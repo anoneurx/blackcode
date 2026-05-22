@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+core/node_modules/
+packages/*/node_modules/
+
+# Build outputs
+out/
+dist/
+frontend/out/
+frontend/webview/webview.js
+*.vsix
+backend/target/
+
+# AI Models (DO NOT PUSH REGULARLY)
+models/*.gguf
+models/*.bin
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
