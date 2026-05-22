@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Code AI</title>
+    <link rel="stylesheet" href="[[WEBVIEW_CSS]]">
+    <style>
+        :root {
+            --bg-main: #0a0a0c;
+            --accent: #a855f7;
+            --accent-green: #10b981;
+            --text: #e2e2e6;
+            --text-muted: #8e8ea0;
+            --border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(28, 28, 30, 0.8);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-main);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .app {
+            width: 95%;
+            max-width: 900px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: #fff;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .icon-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Center Home View */
+        #homeView {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .hero-logo {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+        }
+
+        .hero-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .hero-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .message {
+            position: relative;
+            padding-left: 20px;
+            max-width: 100%;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .message::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            border-radius: 2px;
+        }
+
+        .message.user::after {
+            background: var(--accent-green);
+        }
+
+        .message.ai::after {
+            background: var(--accent);
+        }
+
+        .message-content {
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #eee;
+        }
+
+        .message-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-container {
+            padding: 12px 0 20px 0;
+        }
+
+        .input-wrapper {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 13.5px;
+            outline: none;
+            resize: none;
+            padding: 0;
+            margin-bottom: 8px;
+            min-height: 20px;
+            max-height: 250px;
+        }
+
+        .input-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+        }
+
+        .tool-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .tool-item svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .send-btn-circle {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn-circle:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .send-btn-circle svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 12, 0.98);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+        }
+
+        .list-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            transition: 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .list-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border);
+        }
+
+        .item-title {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .item-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        pre.hljs {
+            background: #000 !important;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 0;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .code-block-header {
+            background: #1a1a1c;
+            border: 1px solid var(--border);
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            padding: 4px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .code-block-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-action-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="logo-text">BLACK CODE</div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="newChat()" title="New Chat">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="toggleOverlay('historyOverlay')" title="History">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+                <button class="icon-btn" onclick="openSettings()" title="Settings">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main id="chatList" class="messages">
+            <div id="homeView">
+                <img src="[[LOGO_URI]]" alt="Black Code" class="hero-logo">
+                <div class="hero-title">Black Code AI</div>
+                <div class="hero-subtitle">Offline AI Coding Assistant. Ready to help you build amazing things.</div>
+            </div>
+        </main>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea id="promptInput" placeholder="How can I help you today?" rows="1"></textarea>
+                <div class="input-toolbar">
+                    <div class="toolbar-left">
+                        <div class="tool-item" onclick="toggleOverlay('modelOverlay')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                            </svg>
+                            <span id="modelLabel">Black Code Pro</span>
+                        </div>
+                        <div class="tool-item" onclick="toggleOverlay('assistantOverlay')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                            <span id="assistantLabel">General</span>
+                        </div>
+                    </div>
+                    <button id="sendBtn" class="send-btn-circle" onclick="send()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                        </svg>
+                    </button>
+                    <button id="stopBtn" class="send-btn-circle" style="display:none; background: #ef4444;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3">
+                            <rect x="6" y="6" width="12" height="12"></rect>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="historyOverlay" class="overlay">
+        <header class="header">
+            <div class="logo-text">HISTORY</div>
+            <button class="icon-btn" onclick="toggleOverlay('historyOverlay')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+        <div id="historyItems" class="messages"></div>
+    </div>
+
+    <div id="modelOverlay" class="overlay">
+        <header class="header">
+            <div class="logo-text">MODELS</div>
+            <button class="icon-btn" onclick="toggleOverlay('modelOverlay')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+        <div class="messages">
+            <div class="list-item" onclick="selectModel('Black Code Beta Default')">
+                <div class="item-title">Black Code Beta Default</div>
+                <div class="item-desc">Balanced performance for daily tasks</div>
+            </div>
+            <div class="list-item" onclick="selectModel('Black Code Pro')">
+                <div class="item-title">Black Code Pro</div>
+                <div class="item-desc">High performance coding model</div>
+            </div>
+            <div class="list-item" onclick="selectModel('Black Code Lite')">
+                <div class="item-title">Black Code Lite</div>
+                <div class="item-desc">Fast and efficient</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="assistantOverlay" class="overlay">
+        <header class="header">
+            <div class="logo-text">MOODS</div>
+            <button class="icon-btn" onclick="toggleOverlay('assistantOverlay')">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+        </header>
+        <div class="messages">
+            <div class="list-item" onclick="selectAssistant('auto', 'General')">
+                <div class="item-title">General</div>
+                <div class="item-desc">All-purpose coding assistant</div>
+            </div>
+            <div class="list-item" onclick="selectAssistant('expert', 'Senior Architect')">
+                <div class="item-title">Senior Architect</div>
+                <div class="item-desc">In-depth clean code & architecture</div>
+            </div>
+            <div class="list-item" onclick="selectAssistant('creative', 'Code Artist')">
+                <div class="item-title">Creative</div>
+                <div class="item-desc">Novel solutions & ideas</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="[[WEBVIEW_JS]]"></script>
+    <script>
+        const vscode = acquireVsCodeApi();
+        let streamingRenderer = null;
+        let currentModel = 'Black Code Pro';
+        let currentAssistant = 'General';
+
+        const promptInput = document.getElementById('promptInput');
+        const chatList = document.getElementById('chatList');
+        const homeView = document.getElementById('homeView');
+        const sendBtn = document.getElementById('sendBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        promptInput.addEventListener('input', () => {
+            promptInput.style.height = 'auto';
+            promptInput.style.height = (promptInput.scrollHeight) + 'px';
+        });
+
+        window.toggleOverlay = (id) => {
+            const el = document.getElementById(id);
+            if (el.style.display === 'flex') {
+                el.style.display = 'none';
+            } else {
+                document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+                el.style.display = 'flex';
+                if (id === 'historyOverlay') vscode.postMessage({ type: 'getHistory' });
+            }
+        };
+
+        window.selectModel = (m) => {
+            currentModel = m;
+            document.getElementById('modelLabel').innerText = m;
+            toggleOverlay('modelOverlay');
+        };
+
+        window.selectAssistant = (id, label) => {
+            currentAssistant = label;
+            document.getElementById('assistantLabel').innerText = label;
+            toggleOverlay('assistantOverlay');
+        };
+
+        window.newChat = () => {
+            chatList.innerHTML = '';
+            chatList.appendChild(homeView);
+            vscode.postMessage({ type: 'newChat' });
+        };
+
+        window.openSettings = () => {
+            vscode.postMessage({ type: 'openSettings' });
+        };
+
+        function appendMessage(type, content) {
+            if (homeView.parentNode === chatList) chatList.removeChild(homeView);
+
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            const body = document.createElement('div');
+            body.className = 'message-content';
+            const meta = document.createElement('div');
+            meta.className = 'message-meta';
+            meta.innerHTML = `<span>${type === 'user' ? 'You' : 'Black Code'}</span> • <span>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+
+            div.appendChild(body);
+            div.appendChild(meta);
+            chatList.appendChild(div);
+            chatList.scrollTo(0, chatList.scrollHeight);
+
+            if (type === 'user') {
+                body.innerText = content;
+                return null;
+            }
+            return body;
+        }
+
+        window.send = () => {
+            const val = promptInput.value.trim();
+            if (!val) return;
+
+            appendMessage('user', val);
+            promptInput.value = '';
+            promptInput.style.height = 'auto';
+
+            const aiBody = appendMessage('ai', '');
+            if (window.BlackCodeRenderer) {
+                streamingRenderer = new window.BlackCodeRenderer(aiBody);
+            }
+
+            vscode.postMessage({ type: 'runAgent', value: val, model: currentModel, assistant: currentAssistant });
+            stopBtn.style.display = 'flex';
+            sendBtn.style.display = 'none';
+        };
+
+        promptInput.onkeydown = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+        };
+
+        window.addEventListener('message', e => {
+            const data = e.data;
+            if (data.type === 'token') {
+                if (streamingRenderer) {
+                    streamingRenderer.update(data.value);
+                    
+                    // Detect [READ path] pattern
+                    const match = streamingRenderer.buffer.match(/\[READ\s+([^\]]+)\]/);
+                    if (match && !this.lastReadPath) {
+                        this.lastReadPath = match[1];
+                        vscode.postMessage({ type: 'readFile', path: this.lastReadPath });
+                    }
+                }
+            } else if (data.type === 'fileContent') {
+                if (streamingRenderer) {
+                    streamingRenderer.update(`\n\n**System: Read file ${data.path}**\n\`\`\`${data.path.split('.').pop()}\n${data.content}\n\`\`\``);
+                }
+                this.lastReadPath = null;
+            } else if (data.type === 'history') {
+
+                const container = document.getElementById('historyItems');
+                if (!container) return;
+                container.innerHTML = '';
+                data.value.slice(0, 15).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <div class="item-title">${item.prompt.substring(0, 70)}...</div>
+                        <div class="item-desc">${item.timestamp} • ${item.mood || 'v1.1'}</div>
+                    `;
+                    div.onclick = () => {
+                        document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+                        chatList.innerHTML = '';
+                        appendMessage('user', item.prompt);
+                        const aiBody = appendMessage('ai', '');
+                        if (window.BlackCodeRenderer) {
+                            const r = new window.BlackCodeRenderer(aiBody);
+                            r.update(item.response);
+                        }
+                    };
+                    container.appendChild(div);
+                });
+            } else if (data.type === 'status' && data.value === 'online') {
+                stopBtn.style.display = 'none';
+                sendBtn.style.display = 'flex';
+            }
+        });
+
+        vscode.postMessage({ type: 'getHistory' });
+    </script>
+</body>
+
+</html>
