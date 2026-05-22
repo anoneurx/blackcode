@@ -7,6 +7,7 @@
 Black Code is a premium offline AI coding assistant.
  This repository contains the complete source code for both the VS Code extension and the high-performance inference engine.
 
+
 ## Project Structure
 
 - **`/frontend`**: The VS Code Extension UI (generates the `.vsix` file).
