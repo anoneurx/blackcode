@@ -92,6 +92,7 @@ body::before {
     padding: 20px 0 30px 0;
 }
 
+/* ---------- Input box with animated purple->pink glow border ---------- */
 .input-wrapper {
     background: var(--input-bg);
     border: 1px solid var(--border);
@@ -99,6 +100,43 @@ body::before {
     padding: 16px;
     position: relative;
     backdrop-filter: blur(20px);
+    isolation: isolate; /* keeps content above the glow ring */
+}
+
+.input-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 6px; /* smaller than box's 12px — less bend around corners */
+    padding: 1px;
+    background: conic-gradient(
+        from var(--glow-angle),
+        transparent 0%,
+        rgba(139, 92, 246, 0.6) 1%,
+        rgba(139, 92, 246, 0.6) 4%,
+        rgba(217, 70, 239, 0.7) 6%,
+        transparent 7%
+    );
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    z-index: -1;
+    animation: spin-glow 4s linear infinite;
+}
+
+@property --glow-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spin-glow {
+    to { --glow-angle: 360deg; }
 }
 
 textarea {
