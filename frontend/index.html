@@ -211,6 +211,16 @@
             mask-composite: exclude;
             z-index: -1;
             animation: spin-glow 4s linear infinite;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Toggled from JS: glow border fades out and pauses the moment
+           the home logo screen is removed (chat starts), and resumes
+           when a new chat brings the logo screen back. */
+        .input-wrapper.glow-off::before {
+            opacity: 0;
+            animation-play-state: paused;
         }
 
         @property --glow-angle {
@@ -560,6 +570,15 @@
         const homeView = document.getElementById('homeView');
         const sendBtn = document.getElementById('sendBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const inputWrapperEl = document.querySelector('.input-wrapper');
+
+        function pauseGlow() {
+            if (inputWrapperEl) inputWrapperEl.classList.add('glow-off');
+        }
+
+        function resumeGlow() {
+            if (inputWrapperEl) inputWrapperEl.classList.remove('glow-off');
+        }
 
         promptInput.addEventListener('input', () => {
             promptInput.style.height = 'auto';
@@ -592,6 +611,7 @@
         window.newChat = () => {
             chatList.innerHTML = '';
             chatList.appendChild(homeView);
+            resumeGlow();
             vscode.postMessage({ type: 'newChat' });
         };
 
@@ -600,7 +620,10 @@
         };
 
         function appendMessage(type, content) {
-            if (homeView.parentNode === chatList) chatList.removeChild(homeView);
+            if (homeView.parentNode === chatList) {
+                chatList.removeChild(homeView);
+                pauseGlow();
+            }
 
             const div = document.createElement('div');
             div.className = `message ${type}`;
